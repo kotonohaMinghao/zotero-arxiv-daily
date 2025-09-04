@@ -166,7 +166,9 @@ def send_email(sender:str, receiver:str, password:str,smtp_server:str,smtp_port:
     msg['Subject'] = Header(f'Daily arXiv {today}', 'utf-8').encode()
 
     receiver_list = receiver.split(',')
+    print('sending mail to: ', receiver_list)
     for receiver_ in receiver_list:
+        print('currently, sending to', receiver_)
         msg['To'] = _format_addr('You <%s>' % receiver_)  
         server.sendmail(sender, [receiver_], msg.as_string())
     server.quit()
