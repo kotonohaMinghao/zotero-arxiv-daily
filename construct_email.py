@@ -150,12 +150,6 @@ def send_email(sender:str, receiver:str, password:str,smtp_server:str,smtp_port:
         name, addr = parseaddr(s)
         return formataddr((Header(name, 'utf-8').encode(), addr))
 
-    msg = MIMEText(html, 'html', 'utf-8')
-    msg['From'] = _format_addr('Github Action <%s>' % sender)
-    msg['To'] = _format_addr('You <%s>' % receiver)
-    today = datetime.datetime.now().strftime('%Y/%m/%d')
-    msg['Subject'] = Header(f'Daily arXiv {today}', 'utf-8').encode()
-
     try:
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
@@ -165,5 +159,14 @@ def send_email(sender:str, receiver:str, password:str,smtp_server:str,smtp_port:
         server = smtplib.SMTP_SSL(smtp_server, smtp_port)
 
     server.login(sender, password)
-    server.sendmail(sender, [receiver], msg.as_string())
+
+    msg = MIMEText(html, 'html', 'utf-8')
+    msg['From'] = _format_addr('Github Action <%s>' % sender)
+    today = datetime.datetime.now().strftime('%Y/%m/%d')
+    msg['Subject'] = Header(f'Daily arXiv {today}', 'utf-8').encode()
+
+    receiver_list = receiver.split(',')
+    for receiver_ in receiver_list:
+        msg['To'] = _format_addr('You <%s>' % receiver_)  
+        server.sendmail(sender, [receiver_], msg.as_string())
     server.quit()
